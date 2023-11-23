@@ -1,7 +1,11 @@
+using libreriaa_JADM.Data;
+using libreriaa_JADM.Data.Models;
+using libreriaa_JADM.Data.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -14,11 +18,14 @@ using System.Threading.Tasks;
 
 namespace libreriaa_JADM
 {
+
     public class Startup
     {
+        public string ConnectionString {get;set;}
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            ConnectionString = Configuration.GetConnectionString("DefaultConnectionString");
         }
 
         public IConfiguration Configuration { get; }
@@ -28,6 +35,12 @@ namespace libreriaa_JADM
         {
 
             services.AddControllers();
+            //Confiugramr DBContext con SQL
+            services.AddDbContext<AppDbContext>(options => options.UseSqlServer(ConnectionString));
+
+            services.AddTransient<BookService>();
+            services.AddTransient<AuthorService>();
+            services.AddTransient<PublisherService>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "libreriaa_JADM", Version = "v1" });
@@ -54,6 +67,7 @@ namespace libreriaa_JADM
             {
                 endpoints.MapControllers();
             });
+           // AppDbInitialer.Seed(app);
         }
     }
 }
